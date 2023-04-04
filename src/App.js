@@ -1,6 +1,47 @@
 // import logo from './logo.svg';
 import './App.css';
+import { supabase } from './supabaseClient';
+import { useState } from 'react';
 
+function DatabaseBooksTable() {
+  
+  const [books, setBooks] = useState([]);
+
+  async function getBooks() {
+    let { data: books, error } = await supabase
+      .from('books')
+      .select('*')
+    // Update the state
+    setBooks(books);
+  }
+  // Execute the function
+  getBooks();
+  // Below is what displays when you use <Library />
+  return (
+    <table className="DatabaseBooksTable-table">
+      <tr className="rowhead">
+        <td className="colhead">ID</td>
+        <td className="coltail">Created At</td>
+        <td className="coltail">Title</td>
+        <td className="coltail">Author</td>
+        <td className="coltail">ISBN</td>
+        <td className="coltail">Description</td>
+      </tr>
+    {
+      books.map(b => (
+        <tr className="rowtail">
+          <td className="colhead">{b.id}</td>
+          <td className="coltail">{b.created_at}</td>
+          <td className="coltail">{b.title}</td>
+          <td className="coltail">{b.author}</td>
+          <td className="coltail">{b.isbn}</td>
+          <td className="coltail">{b.description}</td>
+        </tr>
+      ))
+    }
+    </table>
+  )
+}
 
 function SpecialButton() {
   return (
@@ -53,6 +94,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
+        <DatabaseBooksTable />
         <SpecialButton />
         <NumberList />
         <Section />
