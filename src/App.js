@@ -27,7 +27,7 @@ function DatabaseBooksTable() {
     return (
       <p>Error. Make sure Supabase is online.</p>
     )
-  } else if (books.length == 0) {
+  } else if (books.length === 0) {
     return (
       <p>Loading...</p>
     )
