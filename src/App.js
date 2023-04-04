@@ -1,24 +1,40 @@
 // import logo from './logo.svg';
 import './App.css';
 import { supabase } from './supabaseClient';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function DatabaseBooksTable() {
   
   const [books, setBooks] = useState([]);
+  const [supaErr, setSupaErr] = useState(null)
 
-  async function getBooks() {
-    let { data: books, error } = await supabase
+  // calling a plain async function caused react to spam re-rendering for some
+  // reason, leading to chrome errors. this was the solution I found online.
+  useEffect(() => {
+    const getBooksAsync = async () => {
+      let { data: books, error } = await supabase
       .from('books')
       .select('*')
-    // Update the state
-    setBooks(books);
+      // Update the state
+      setBooks(books);
+      setSupaErr(error);
+    }
+
+    getBooksAsync().catch(() => {setSupaErr(1)})
+  }, []);
+  
+  if (supaErr) {
+    return (
+      <p>Error. Make sure Supabase is online.</p>
+    )
+  } else if (books.length == 0) {
+    return (
+      <p>Loading...</p>
+    )
   }
-  // Execute the function
-  getBooks();
-  // Below is what displays when you use <Library />
-  return (
-    <table className="DatabaseBooksTable-table">
+  else {
+    return (
+      <table className="DatabaseBooksTable-table">
       <tr className="rowhead">
         <td className="colhead">ID</td>
         <td className="coltail">Created At</td>
@@ -27,20 +43,21 @@ function DatabaseBooksTable() {
         <td className="coltail">ISBN</td>
         <td className="coltail">Description</td>
       </tr>
-    {
-      books.map(b => (
-        <tr className="rowtail">
-          <td className="colhead">{b.id}</td>
-          <td className="coltail">{b.created_at}</td>
-          <td className="coltail">{b.title}</td>
-          <td className="coltail">{b.author}</td>
-          <td className="coltail">{b.isbn}</td>
-          <td className="coltail">{b.description}</td>
-        </tr>
-      ))
-    }
-    </table>
-  )
+      {
+        books.map(b => (
+          <tr className="rowtail">
+            <td className="colhead">{b.id}</td>
+            <td className="coltail">{b.created_at}</td>
+            <td className="coltail">{b.title}</td>
+            <td className="coltail">{b.author}</td>
+            <td className="coltail">{b.isbn}</td>
+            <td className="coltail">{b.description}</td>
+          </tr>
+        ))
+      }
+      </table>
+    )
+  }
 }
 
 function SpecialButton() {
